@@ -4,71 +4,26 @@
     <Home-Swiper :banners="banners"/>
     <Recomend-View :recommends="recommends"/>
     <Feature-View/>
-    <Tab-control class="tab-control" :titles="['流行','新款','精选']"/>
-
-    <!-- 虚拟数据 -->
-    <div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    <div>劝君惜取少年时</div>
-    </div>
+    <Tab-Control 
+    class="tab-control" 
+    :titles="['流行','新款','精选']"
+    @tabClick="tabClick"/>
+    <Goods-List :goods="showGoods"><slot></slot></Goods-List>
   </div>
 </template>  
 
 <script>
+// 全局组件
 import NavBar from 'components/common/navbar/NavBar'
 import TabControl from 'components/content/tabControl/TabControl'
+import GoodsList from 'components/content/goods/GoodsList'
 
+// 子组件
 import HomeSwiper from './childComps/HomeSwiper'
 import RecomendView from './childComps/RecomendView'
 import FeatureView from './childComps/FeatureView'
 
+// 方法
 import { getHomeMultidata, getHomeGoods } from 'network/home'
 
 export default {
@@ -76,6 +31,7 @@ export default {
   components: {
     NavBar,
     TabControl,
+    GoodsList,
     HomeSwiper,
     RecomendView,
     FeatureView
@@ -86,9 +42,10 @@ export default {
       recommends: [],
       goods: {
         'pop': {page: 0, list: []},
-        'news': {page: 0, list: []},
+        'new': {page: 0, list: []},
         'sell': {page: 0, list: []}
-      }
+      },
+      currentType: 'pop'
     }
   },
   created() {
@@ -97,8 +54,36 @@ export default {
 
     // 2. 请求商品数据
     this.getHomeGoods('pop')
+    this.getHomeGoods('new')
+    this.getHomeGoods('sell')
+  },
+  computed: {
+    showGoods() {
+      return this.goods[this.currentType].list
+    }
   },
   methods: {
+   /**
+    *  事件监听相关的方法
+    */
+    tabClick(index) {
+      console.log(index)
+      switch (index) {
+        case 0:
+          this.currentType = 'pop'
+          break;
+        case 1:
+          this.currentType = 'new'
+          break;
+        case 2:
+          this.currentType = 'sell'
+          break;
+      }
+    },
+
+   /**
+    *  网络请求相关的方法
+    */
     getHomeMultidata(){
       getHomeMultidata().then(res => {
         this.banners = res.data.banner.list
